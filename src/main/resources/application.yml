@@ -1,0 +1,32 @@
+server:
+    port: 8081
+spring:
+    application:
+        name: myblog-server
+    datasource:
+        url: jdbc:mysql://115.159.103.185:4242/myblog?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        type: com.alibaba.druid.pool.DruidDataSource
+        password: lostfound
+        username: lostfounddatabase
+
+shiro-redis:
+    redis-manager:
+        host: 115.159.103.185:6379
+        password: getschwifty42
+        database: 0 # 使用0号数据库
+# mybatisplus配置
+mybatis-plus:
+    mapper-locations: classpath:mapper/*.xml
+    configuration:
+        # 下划线风格映射到驼峰命名（便于数据库字段映射到java类属性）
+        map-underscore-to-camel-case: true
+    type-aliases-package: cn.me.model.dto.*
+# 日志显示
+logging:
+    level:
+        root: info
+        cn:
+            me:
+                mapper: debug
+# redis配置
