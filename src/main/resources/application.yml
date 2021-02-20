@@ -29,4 +29,8 @@ logging:
         cn:
             me:
                 mapper: debug
-# redis配置
+# jwt配置
+auth:
+    jwt:
+        secret: f4e2e52034348f86b67cde581c0f9eb5
+        header: Auth
