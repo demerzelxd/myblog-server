@@ -1,5 +1,7 @@
 package cn.me.config.shiro.realms;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.me.config.shiro.profile.UserProfile;
 import cn.me.config.shiro.token.JwtToken;
 import cn.me.constants.StateConstants;
 import cn.me.model.po.User;
@@ -75,6 +77,8 @@ public class CustomRealm extends AuthorizingRealm
 			throw new LockedAccountException("账户已被锁定");
 		}
 		// 如果能获取到用户
-		return new SimpleAuthenticationInfo(userId, jwtToken.getCredentials(), this.getName());
+		UserProfile userProfile = new UserProfile();
+		BeanUtil.copyProperties(user, userProfile);
+		return new SimpleAuthenticationInfo(userProfile, jwtToken.getCredentials(), this.getName());
 	}
 }

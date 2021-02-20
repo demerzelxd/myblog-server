@@ -87,12 +87,15 @@ public class ShiroConfig
 	public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager,
 	                                                     ShiroFilterChainDefinition shiroFilterChainDefinition) {
 		ShiroFilterFactoryBean shiroFilter = new ShiroFilterFactoryBean();
+		// 给filter设置安全管理器
 		shiroFilter.setSecurityManager(securityManager);
 
+		// 给filter设置jwtFilter
 		Map<String, Filter> filters = new HashMap<>();
 		filters.put("jwt", jwtFilter);
 		shiroFilter.setFilters(filters);
 
+		// 给filter设置配置好的过滤器链
 		Map<String, String> filterMap = shiroFilterChainDefinition.getFilterChainMap();
 		shiroFilter.setFilterChainDefinitionMap(filterMap);
 		return shiroFilter;

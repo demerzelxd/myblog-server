@@ -1,4 +1,4 @@
-package cn.me.model.dto;
+package cn.me.model.common;
 
 import cn.hutool.http.HttpStatus;
 import lombok.AllArgsConstructor;

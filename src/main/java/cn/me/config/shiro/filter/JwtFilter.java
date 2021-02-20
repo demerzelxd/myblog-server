@@ -3,7 +3,7 @@ package cn.me.config.shiro.filter;
 import cn.hutool.http.HttpStatus;
 import cn.hutool.json.JSONUtil;
 import cn.me.config.shiro.token.JwtToken;
-import cn.me.model.dto.Result;
+import cn.me.model.common.Result;
 import cn.me.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
@@ -101,7 +101,7 @@ public class JwtFilter extends AuthenticatingFilter
 		// 获取认证失败信息
 		Throwable throwable = ObjectUtils.isEmpty(e.getCause()) ? e : e.getCause();
 		// 封装认证失败信息
-		Result<Object> result = Result.error(HttpStatus.HTTP_UNAUTHORIZED, throwable.getMessage());
+		Result result = Result.error(HttpStatus.HTTP_UNAUTHORIZED, throwable.getMessage());
 		String json = JSONUtil.toJsonStr(result);
 		try
 		{
