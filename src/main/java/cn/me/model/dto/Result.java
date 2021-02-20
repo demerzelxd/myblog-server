@@ -1,5 +1,6 @@
 package cn.me.model.dto;
 
+import cn.hutool.http.HttpStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -50,7 +51,7 @@ public class Result<T> implements Serializable
 
     public static <T> Result<T> success(T data)
     {
-        return new Result<>(true, 200, "OK", data);
+        return new Result<>(true, HttpStatus.HTTP_OK, "OK", data);
     }
 
     public static <T> Result<T> success()
@@ -65,11 +66,11 @@ public class Result<T> implements Serializable
 
     public static <T> Result<T> error(String msg)
     {
-        return error(400, msg);
+        return error(HttpStatus.HTTP_BAD_REQUEST, msg);
     }
 
     public static <T> Result<T> error()
     {
-        return error(400, null);
+        return error(HttpStatus.HTTP_BAD_REQUEST, null);
     }
 }
