@@ -6,6 +6,9 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
+/**
+ * 用户注册接收前端数据
+ */
 @Data
 public class UserLogonDTO implements Serializable
 {

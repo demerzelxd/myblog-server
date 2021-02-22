@@ -9,12 +9,15 @@ import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.ShiroException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.ExpiredCredentialsException;
 import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
+import org.apache.shiro.web.util.WebUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -65,7 +68,8 @@ public class JwtFilter extends AuthenticatingFilter
 	{
 		// 获取凭证
 		String token = this.getToken(servletRequest);
-		// 如果用户并没有认证，则下一步去controller的@RequireRoles判断权限，游客只有查看文章等权限
+		// 如果用户并没有认证，则下一步可以去controller的@RequireRoles判断权限，游客只有查看文章等权限
+		// 用户注册和用户登录时token也是null，放行
 		if (StringUtils.isBlank(token))
 		{
 			// 放行
@@ -99,7 +103,11 @@ public class JwtFilter extends AuthenticatingFilter
 		// 强转为HttpServletResponse
 		HttpServletResponse resp = (HttpServletResponse) response;
 		// 获取认证失败信息
+		// 调用一下 Exception的getCause方法找到原始的异常
 		Throwable throwable = ObjectUtils.isEmpty(e.getCause()) ? e : e.getCause();
+		// 不可以进行如下throw给全局异常捕获，因为要重写该方法要return false，而throw会直接结束，不会return
+		// throw new ShiroException(throwable.getMessage());
+
 		// 封装认证失败信息
 		Result result = Result.error(HttpStatus.HTTP_UNAUTHORIZED, throwable.getMessage());
 		String json = JSONUtil.toJsonStr(result);
@@ -110,7 +118,7 @@ public class JwtFilter extends AuthenticatingFilter
 		}
 		catch (IOException ioException)
 		{
-			log.info("返回给前端认证失败信息发生异常：【{}】", ioException.getMessage());
+			log.info("向前端返回认证失败信息时发生异常：--------------- {}", ioException.getMessage());
 		}
 		return false;
 	}
@@ -127,5 +135,25 @@ public class JwtFilter extends AuthenticatingFilter
 		HttpServletRequest request = (HttpServletRequest) servletRequest;
 		// 从用户的Auth请求头获取凭证
 		return request.getHeader("Auth");
+	}
+
+	/**
+	 * 对跨域提供支持
+	 */
+	@Override
+	protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception
+	{
+		HttpServletRequest httpServletRequest = WebUtils.toHttp(request);
+		HttpServletResponse httpServletResponse = WebUtils.toHttp(response);
+		httpServletResponse.setHeader("Access-control-Allow-Origin", httpServletRequest.getHeader("Origin"));
+		httpServletResponse.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
+		httpServletResponse.setHeader("Access-Control-Allow-Headers", httpServletRequest.getHeader("Access-Control-Request-Headers"));
+		// 跨域时会首先发送一个OPTIONS请求，这里我们给OPTIONS请求直接返回正常状态
+		if (httpServletRequest.getMethod().equals(RequestMethod.OPTIONS.name()))
+		{
+			httpServletResponse.setStatus(org.springframework.http.HttpStatus.OK.value());
+			return false;
+		}
+		return super.preHandle(request, response);
 	}
 }
