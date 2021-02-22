@@ -8,6 +8,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -36,16 +37,16 @@ public class JwtUtils
 	 * 生成jwt token
 	 *
 	 * @param userId
-	 * @param expireMinutes
+	 * @param expireSeconds
 	 * @return
 	 */
-	public String generateToken(int userId, int expireMinutes)
+	public String generateToken(Integer userId, Integer expireSeconds)
 	{
 		return Jwts.builder()
 				.setHeaderParam("typ", "JWT")
 				.claim(JwtConstants.JWT_KEY_ID, userId)
 				.setIssuedAt(DateTime.now())
-				.setExpiration(DateUtil.offsetMinute(new Date(), expireMinutes))
+				.setExpiration(DateUtil.offsetSecond(new Date(), expireSeconds))
 				.signWith(SignatureAlgorithm.HS512, secret)
 				.compact();
 	}
@@ -67,7 +68,7 @@ public class JwtUtils
 		}
 		catch (Exception e)
 		{
-			log.info("token is not valid", e);
+			log.info("token解析失败", e);
 			return null;
 		}
 	}
@@ -80,5 +81,18 @@ public class JwtUtils
 	public boolean isTokenExpired(Date expire)
 	{
 		return expire.before(new Date());
+	}
+
+	/**
+	 * 判断token是否有效
+	 * 解析失败与过期均为无效
+	 * @param token
+	 * @return
+	 */
+	public boolean isTokenValid(String token)
+	{
+		Claims claim = this.parseToken(token);
+		// 如果解析失败或过期返回false
+		return !ObjectUtils.isEmpty(claim) && !this.isTokenExpired(claim.getExpiration());
 	}
 }

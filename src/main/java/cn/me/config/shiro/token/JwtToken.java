@@ -2,6 +2,9 @@ package cn.me.config.shiro.token;
 
 import org.apache.shiro.authc.AuthenticationToken;
 
+/**
+ * 自定义jwtToken，类似UsernamePasswordToken
+ */
 public class JwtToken implements AuthenticationToken
 {
 	public String token;

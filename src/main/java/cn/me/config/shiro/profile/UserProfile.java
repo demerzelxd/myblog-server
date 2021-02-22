@@ -2,11 +2,13 @@ package cn.me.config.shiro.profile;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * 封装了用户可以公开的principal属性
  */
 @Data
-public class UserProfile
+public class UserProfile implements Serializable
 {
 	/**
 	 * 主键ID

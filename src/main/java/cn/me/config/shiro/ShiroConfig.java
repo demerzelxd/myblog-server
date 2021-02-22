@@ -4,6 +4,7 @@ import cn.me.config.shiro.filter.JwtFilter;
 import cn.me.config.shiro.realms.CustomRealm;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.SessionsSecurityManager;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
@@ -13,6 +14,7 @@ import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.crazycake.shiro.RedisCacheManager;
 import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,7 +33,7 @@ public class ShiroConfig
 	 * 自定义sessionManager，使用redisSessionDAO生成并保存session
 	 * @return
 	 */
-	@Bean
+	@Bean("sessionManager")
 	public SessionManager sessionManager(RedisSessionDAO redisSessionDAO)
 	{
 		DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
@@ -46,8 +48,8 @@ public class ShiroConfig
 	 * @param sessionManager
 	 * @return
 	 */
-	@Bean
-	public SessionsSecurityManager securityManager(CustomRealm realm,
+	@Bean("securityManager")
+	public SessionsSecurityManager securityManager(@Qualifier("realm") Realm realm,
 	                                               SessionManager sessionManager,
 	                                               RedisCacheManager redisCacheManager)
 	{
@@ -64,7 +66,7 @@ public class ShiroConfig
 	 * 过滤器链定义，定义不同请求路径经过的过滤器
 	 * @return
 	 */
-	@Bean
+	@Bean("shiroFilterChainDefinition")
 	public ShiroFilterChainDefinition shiroFilterChainDefinition() {
 		DefaultShiroFilterChainDefinition chainDefinition = new DefaultShiroFilterChainDefinition();
 		Map<String, String> filterMap = new LinkedHashMap<>();
@@ -99,5 +101,21 @@ public class ShiroConfig
 		Map<String, String> filterMap = shiroFilterChainDefinition.getFilterChainMap();
 		shiroFilter.setFilterChainDefinitionMap(filterMap);
 		return shiroFilter;
+	}
+
+	// 注入定义realm
+	@Bean("realm")
+	public Realm getRealm()
+	{
+		CustomRealm customRealm = new CustomRealm();
+		// 开启全局缓存
+		customRealm.setCachingEnabled(true);
+		// 开启认证缓存
+		customRealm.setAuthenticationCachingEnabled(true);
+		customRealm.setAuthenticationCacheName("authenticationCache");
+		//开启授权缓存
+		customRealm.setAuthorizationCachingEnabled(true);
+		customRealm.setAuthorizationCacheName("authorizationCache");
+		return customRealm;
 	}
 }

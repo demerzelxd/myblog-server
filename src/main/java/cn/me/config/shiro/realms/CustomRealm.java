@@ -79,6 +79,9 @@ public class CustomRealm extends AuthorizingRealm
 		// 如果能获取到用户
 		UserProfile userProfile = new UserProfile();
 		BeanUtil.copyProperties(user, userProfile);
+		// 密码自动比较，SimpleAuthenticationInfo的第二个参数在设计上应该是真实的密码
+		// 在这边我们自定义了登录，该第二个参数会和jwtToken里的getCredentials值做比较，因为这里面我们设计的就是相同，所以必然能比对成功
+		// 把真正的密码比对逻辑从shiro这里，更换到了Controller的login中
 		return new SimpleAuthenticationInfo(userProfile, jwtToken.getCredentials(), this.getName());
 	}
 }

@@ -5,11 +5,9 @@ import cn.hutool.json.JSONUtil;
 import cn.me.config.shiro.token.JwtToken;
 import cn.me.model.common.Result;
 import cn.me.utils.JwtUtils;
-import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.ShiroException;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.ExpiredCredentialsException;
@@ -34,7 +32,7 @@ public class JwtFilter extends AuthenticatingFilter
 
 	/**
 	 * 获取用户的jwt，并生成shiro能识别的自定义的JwtToken
-	 * ctrl O可以重写方法
+	 * Ctrl O可以重写方法
 	 *
 	 * @param servletRequest
 	 * @param servletResponse
@@ -56,7 +54,8 @@ public class JwtFilter extends AuthenticatingFilter
 	}
 
 	/**
-	 * 校验token为空、过期或不正确的情况并登录认证
+	 * OnAccessDenied为配置当被过滤器拦截时需要的操作
+	 * 返回 true 表示当前方法不处理且放行不再拦截，返回 false 表示自己已经处理了
 	 *
 	 * @param servletRequest
 	 * @param servletResponse
@@ -76,10 +75,8 @@ public class JwtFilter extends AuthenticatingFilter
 			return true;
 		}
 		// 如果jwt不为空
-		// 校验jwt
-		Claims claim = jwtUtils.parseToken(token);
-		// 如果解析失败或过期
-		if (ObjectUtils.isEmpty(claim) || jwtUtils.isTokenExpired(claim.getExpiration()))
+		// 校验jwt，如果解析失败或过期抛出异常
+		if (jwtUtils.isTokenValid(token))
 		{
 			throw new ExpiredCredentialsException("token已失效，请重新登录");
 		}
@@ -89,7 +86,7 @@ public class JwtFilter extends AuthenticatingFilter
 	}
 
 	/**
-	 * 登录认证失败的处理，将认证失败信息返回给前端
+	 * 登录认证时产生异常的处理，将异常信息返回给前端
 	 *
 	 * @param token
 	 * @param e
@@ -111,6 +108,7 @@ public class JwtFilter extends AuthenticatingFilter
 		// 封装认证失败信息
 		Result result = Result.error(HttpStatus.HTTP_UNAUTHORIZED, throwable.getMessage());
 		String json = JSONUtil.toJsonStr(result);
+		log.info("登录发生异常：--------------- {}", json);
 		try
 		{
 			// 返回给前端
@@ -148,7 +146,8 @@ public class JwtFilter extends AuthenticatingFilter
 		httpServletResponse.setHeader("Access-control-Allow-Origin", httpServletRequest.getHeader("Origin"));
 		httpServletResponse.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS,PUT,DELETE");
 		httpServletResponse.setHeader("Access-Control-Allow-Headers", httpServletRequest.getHeader("Access-Control-Request-Headers"));
-		// 跨域时会首先发送一个OPTIONS请求，这里我们给OPTIONS请求直接返回正常状态
+		// 跨域时会首先发送一个OPTIONS请求，而OPTIONS是没有token的会被拦截
+		// 这里我们给OPTIONS请求直接返回正常状态即可
 		if (httpServletRequest.getMethod().equals(RequestMethod.OPTIONS.name()))
 		{
 			httpServletResponse.setStatus(org.springframework.http.HttpStatus.OK.value());

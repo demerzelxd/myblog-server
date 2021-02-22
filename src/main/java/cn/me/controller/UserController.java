@@ -15,6 +15,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +41,8 @@ public class UserController
 	private JwtUtils jwtUtils;
 
 	/**
-	 * 测试接口，@RequiresAuthentication表示需要登录认证才能访问
-	 *
+	 * 测试接口，@RequiresAuthentication表示需要登录认证已经成功时才能访问
+	 * 相当于subject.isAuthenticated()结果为true时
 	 * @param id
 	 * @return
 	 */
@@ -49,7 +50,9 @@ public class UserController
 	@GetMapping("/{id}")
 	public Result<User> test(@PathVariable("id") Integer id)
 	{
+		// true
 		System.out.println(SecurityUtils.getSubject().isAuthenticated());
+		// UserProfile(id=4, username=dada, avatar=https://image-1300566513.cos.ap-guangzhou.myqcloud.com/upload/images/5a9f48118166308daba8b6da7e466aab.jpg, email=1845959992@qq.com)
 		System.out.println(SecurityUtils.getSubject().getPrincipals());
 		return Result.success(userService.getById(id));
 	}
