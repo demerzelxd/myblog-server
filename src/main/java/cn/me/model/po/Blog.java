@@ -21,8 +21,8 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("t_blog")
-public class Blog implements Serializable {
-
+public class Blog implements Serializable
+{
     private static final long serialVersionUID = 1L;
 
     /**
@@ -57,7 +57,7 @@ public class Blog implements Serializable {
     private String status;
 
     /**
-     * 创建时间
+     * 创建时间，由于IPage<Blog> pageResult只能是Blog类型，不得已在Blog加了JsonFormat
      */
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private LocalDateTime createTime;

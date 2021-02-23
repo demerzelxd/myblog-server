@@ -21,7 +21,7 @@ mybatis-plus:
     configuration:
         # 下划线风格映射到驼峰命名（便于数据库字段映射到java类属性）
         map-underscore-to-camel-case: true
-    type-aliases-package: cn.me.model.dto.*
+    type-aliases-package: cn.me.model.po.*
 # 日志显示
 logging:
     level:

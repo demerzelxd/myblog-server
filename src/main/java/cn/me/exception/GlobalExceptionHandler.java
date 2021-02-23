@@ -52,7 +52,7 @@ public class GlobalExceptionHandler
 	}
 
 	/**
-	 * 处理Assert异常，当用户注册时用户名或邮箱已存在时报出
+	 * 处理Assert异常
 	 * @param e
 	 * @return
 	 */
