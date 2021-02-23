@@ -76,7 +76,7 @@ public class JwtFilter extends AuthenticatingFilter
 		}
 		// 如果jwt不为空
 		// 校验jwt，如果解析失败或过期抛出异常
-		if (jwtUtils.isTokenValid(token))
+		if (!jwtUtils.isTokenValid(token))
 		{
 			throw new ExpiredCredentialsException("token已失效，请重新登录");
 		}

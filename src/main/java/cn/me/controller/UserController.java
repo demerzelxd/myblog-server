@@ -2,7 +2,6 @@ package cn.me.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Assert;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.me.model.common.Result;
 import cn.me.model.dto.UserLoginDTO;
@@ -15,7 +14,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.IncorrectCredentialsException;
-import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +21,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 用户表 前端控制器
@@ -46,7 +46,7 @@ public class UserController
 	 * @param id
 	 * @return
 	 */
-	// @RequiresAuthentication
+	@RequiresAuthentication
 	@GetMapping("/{id}")
 	public Result<User> test(@PathVariable("id") Integer id)
 	{
@@ -90,7 +90,7 @@ public class UserController
 	}
 
 	@PostMapping("/login")
-	public Result login(@Validated @RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response)
+	public Result<UserVO> login(@Validated @RequestBody UserLoginDTO userLoginDTO, HttpServletResponse response)
 	{
 		// 先判断用户是否存在
 		User selected = userService.getOne(new QueryWrapper<User>().eq("username", userLoginDTO.getUsername()));
@@ -103,18 +103,19 @@ public class UserController
 			// 密码不正确
 			throw new IncorrectCredentialsException("用户名或密码不正确");
 		}
-		String jwt = jwtUtils.generateToken(selected.getId(), 1);
+		// 密码正确，设置Header，前端需进行设置，以后每次访问都带着这个Header
+		String jwt = jwtUtils.generateToken(selected.getId(), 30);
 		response.setHeader("Auth", jwt);
 		response.setHeader("Access-Control-Expose-Headers", "Auth");
 
+		UserVO userVO = new UserVO();
+		// 设置last_login为当前时间
+		selected.setLastLogin(LocalDateTime.now());
+		userService.updateById(selected);
+		// 去除密码和盐
+		BeanUtil.copyProperties(selected, userVO);
 		// 给前端登录之后用户信息的回显
-		return Result.success(MapUtil.builder()
-				.put("id", selected.getId())
-				.put("username", selected.getUsername())
-				.put("avatar", selected.getAvatar())
-				.put("email", selected.getEmail())
-				.map()
-		);
+		return Result.success(userVO);
 	}
 
 	// 退出

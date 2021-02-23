@@ -8,6 +8,7 @@ import cn.me.model.po.User;
 import cn.me.service.UserService;
 import cn.me.constants.JwtConstants;
 import cn.me.utils.JwtUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.*;
@@ -17,6 +18,7 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class CustomRealm extends AuthorizingRealm
 {
@@ -61,6 +63,7 @@ public class CustomRealm extends AuthorizingRealm
 	@Override
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException
 	{
+		log.info("进入认证方法 ---------------");
 		JwtToken jwtToken = (JwtToken) authenticationToken;
 		// 获取用户id
 		Integer userId = jwtUtils.parseToken((String) jwtToken.getPrincipal()).get(JwtConstants.JWT_KEY_ID, Integer.class);

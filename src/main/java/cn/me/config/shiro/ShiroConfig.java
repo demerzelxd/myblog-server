@@ -1,10 +1,13 @@
 package cn.me.config.shiro;
 
+import cn.me.config.redis.CustomJackson2JsonRedisSerializer;
 import cn.me.config.shiro.filter.JwtFilter;
 import cn.me.config.shiro.realms.CustomRealm;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.SessionsSecurityManager;
-import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.spring.web.config.DefaultShiroFilterChainDefinition;
@@ -14,7 +17,6 @@ import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.crazycake.shiro.RedisCacheManager;
 import org.crazycake.shiro.RedisSessionDAO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,12 +33,23 @@ public class ShiroConfig
 
 	/**
 	 * 自定义sessionManager，使用redisSessionDAO生成并保存session
+	 *
 	 * @return
 	 */
-	@Bean("sessionManager")
+	@Bean
 	public SessionManager sessionManager(RedisSessionDAO redisSessionDAO)
 	{
 		DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+		// 使用Jackson2JsonRedisSerializer来序列化和反序列化redis的value值（默认使用JDK的序列化方式）
+		CustomJackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new CustomJackson2JsonRedisSerializer<>(Object.class);
+		ObjectMapper om = new ObjectMapper();
+		// 指定要序列化的域，field，get和set,以及修饰符范围，ANY是都有包括private和public
+		om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+		// 指定序列化输入的类型，类必须是非final修饰的，final修饰的类，比如String, Integer等会抛出异常
+		om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+		jackson2JsonRedisSerializer.setObjectMapper(om);
+		// 序列化值时使用此序列化方法
+		redisSessionDAO.setValueSerializer(jackson2JsonRedisSerializer);
 		// 注入redisSessionDAO
 		sessionManager.setSessionDAO(redisSessionDAO);
 		return sessionManager;
@@ -44,12 +57,13 @@ public class ShiroConfig
 
 	/**
 	 * 自定义SecurityManager 使用自定义sessionManager和redis缓存
+	 *
 	 * @param realm
 	 * @param sessionManager
 	 * @return
 	 */
-	@Bean("securityManager")
-	public SessionsSecurityManager securityManager(@Qualifier("realm") Realm realm,
+	@Bean
+	public SessionsSecurityManager securityManager(CustomRealm realm,
 	                                               SessionManager sessionManager,
 	                                               RedisCacheManager redisCacheManager)
 	{
@@ -64,10 +78,12 @@ public class ShiroConfig
 
 	/**
 	 * 过滤器链定义，定义不同请求路径经过的过滤器
+	 *
 	 * @return
 	 */
-	@Bean("shiroFilterChainDefinition")
-	public ShiroFilterChainDefinition shiroFilterChainDefinition() {
+	@Bean
+	public ShiroFilterChainDefinition shiroFilterChainDefinition()
+	{
 		DefaultShiroFilterChainDefinition chainDefinition = new DefaultShiroFilterChainDefinition();
 		Map<String, String> filterMap = new LinkedHashMap<>();
 		// 定义经过所有路径都需要先认证
@@ -81,13 +97,15 @@ public class ShiroConfig
 
 	/**
 	 * 创建ShiroFilter负责拦截请求
+	 *
 	 * @param securityManager
 	 * @param shiroFilterChainDefinition
 	 * @return
 	 */
-	@Bean("shiroFilterFactoryBean")
+	@Bean
 	public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager,
-	                                                     ShiroFilterChainDefinition shiroFilterChainDefinition) {
+	                                                     ShiroFilterChainDefinition shiroFilterChainDefinition)
+	{
 		ShiroFilterFactoryBean shiroFilter = new ShiroFilterFactoryBean();
 		// 给filter设置安全管理器
 		shiroFilter.setSecurityManager(securityManager);
@@ -101,21 +119,5 @@ public class ShiroConfig
 		Map<String, String> filterMap = shiroFilterChainDefinition.getFilterChainMap();
 		shiroFilter.setFilterChainDefinitionMap(filterMap);
 		return shiroFilter;
-	}
-
-	// 注入定义realm
-	@Bean("realm")
-	public Realm getRealm()
-	{
-		CustomRealm customRealm = new CustomRealm();
-		// 开启全局缓存
-		customRealm.setCachingEnabled(true);
-		// 开启认证缓存
-		customRealm.setAuthenticationCachingEnabled(true);
-		customRealm.setAuthenticationCacheName("authenticationCache");
-		//开启授权缓存
-		customRealm.setAuthorizationCachingEnabled(true);
-		customRealm.setAuthorizationCacheName("authorizationCache");
-		return customRealm;
 	}
 }

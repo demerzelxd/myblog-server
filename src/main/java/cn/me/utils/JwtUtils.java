@@ -37,16 +37,16 @@ public class JwtUtils
 	 * 生成jwt token
 	 *
 	 * @param userId
-	 * @param expireSeconds
+	 * @param expireMinutes
 	 * @return
 	 */
-	public String generateToken(Integer userId, Integer expireSeconds)
+	public String generateToken(Integer userId, Integer expireMinutes)
 	{
 		return Jwts.builder()
 				.setHeaderParam("typ", "JWT")
 				.claim(JwtConstants.JWT_KEY_ID, userId)
 				.setIssuedAt(DateTime.now())
-				.setExpiration(DateUtil.offsetSecond(new Date(), expireSeconds))
+				.setExpiration(DateUtil.offsetMinute(new Date(), expireMinutes))
 				.signWith(SignatureAlgorithm.HS512, secret)
 				.compact();
 	}
