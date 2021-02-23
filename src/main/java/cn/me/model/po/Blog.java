@@ -57,8 +57,7 @@ public class Blog implements Serializable
     private String status;
 
     /**
-     * 创建时间，由于IPage<Blog> pageResult只能是Blog类型，不得已在Blog加了JsonFormat
+     * 创建时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private LocalDateTime createTime;
 }
