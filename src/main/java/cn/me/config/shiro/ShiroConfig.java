@@ -2,7 +2,6 @@ package cn.me.config.shiro;
 
 import cn.me.config.shiro.filter.JwtFilter;
 import cn.me.config.shiro.realms.CustomRealm;
-import cn.me.config.shiro.redis.CustomJackson2JsonRedisSerializer;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.mgt.SessionsSecurityManager;
 import org.apache.shiro.session.mgt.SessionManager;
@@ -37,8 +36,6 @@ public class ShiroConfig
 	public SessionManager sessionManager(RedisSessionDAO redisSessionDAO)
 	{
 		DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
-		CustomJackson2JsonRedisSerializer<Object> valueSerializer = new CustomJackson2JsonRedisSerializer<>(Object.class);
-		redisSessionDAO.setValueSerializer(valueSerializer);
 		// 注入redisSessionDAO
 		sessionManager.setSessionDAO(redisSessionDAO);
 		return sessionManager;
