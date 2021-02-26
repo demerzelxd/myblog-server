@@ -58,7 +58,7 @@ public class BlogController
 		Assert.notNull(blog, "该博客不存在或已被删除");
 		BlogVO blogVO = new BlogVO();
 		BeanUtil.copyProperties(blog, blogVO);
-		return Result.success(blogVO);
+		return Result.success(blogVO, null);
 	}
 
 	/**
