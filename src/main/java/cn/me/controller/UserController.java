@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * 用户表 前端控制器
@@ -86,7 +85,7 @@ public class UserController
 		userService.save(user);
 		// 查找插入后的记录，将User转为UserVO
 		BeanUtil.copyProperties(userService.getById(user.getId()), userVO);
-		return Result.success(userVO);
+		return Result.success(userVO, "注册成功");
 	}
 
 	@PostMapping("/login")
@@ -104,7 +103,7 @@ public class UserController
 			throw new IncorrectCredentialsException("用户名或密码不正确");
 		}
 		// 密码正确，设置Header，前端需进行设置，以后每次访问都带着这个Header
-		String jwt = jwtUtils.generateToken(selected.getId(), 30);
+		String jwt = jwtUtils.generateToken(selected.getId(), 60 * 24);
 		response.setHeader("Auth", jwt);
 		response.setHeader("Access-Control-Expose-Headers", "Auth");
 
@@ -115,7 +114,7 @@ public class UserController
 		// 去除密码和盐
 		BeanUtil.copyProperties(selected, userVO);
 		// 给前端登录之后用户信息的回显
-		return Result.success(userVO);
+		return Result.success(userVO, "登录成功");
 	}
 
 	// 退出
@@ -124,6 +123,6 @@ public class UserController
 	public Result logout()
 	{
 		SecurityUtils.getSubject().logout();
-		return Result.success();
+		return Result.success(null, "注销成功");
 	}
 }

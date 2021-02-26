@@ -43,7 +43,7 @@ public class BlogController
 		// 将有效的博客按照创建时间倒序排列
 		IPage<Blog> pageResult = blogService.page(page, new QueryWrapper<Blog>().eq("status", "1").orderByDesc("create_time"));
 		// 实体转VO
-		return Result.success(pageResult.convert(Blog -> BeanUtil.copyProperties(Blog, BlogVO.class)));
+		return Result.success(pageResult.convert(Blog -> BeanUtil.copyProperties(Blog, BlogVO.class)), null);
 	}
 
 	/**
@@ -70,7 +70,8 @@ public class BlogController
 	@PostMapping("/addOrUpdate")
 	public Result<BlogVO> addOrUpdateBlog(@Validated @RequestBody BlogDTO blogDTO)
 	{
-		if(!ObjectUtils.isEmpty(blogDTO.getId()))
+		boolean flag = ObjectUtils.isEmpty(blogDTO.getId());
+		if(!flag)
 		{
 			// id不为空，说明是编辑
 			// 只能编辑自己的文章
@@ -83,6 +84,7 @@ public class BlogController
 		// 如果是新增，blog会回显id；如果是编辑，blog仍是原来的id
 		// 获取新增或编辑后的记录，返回
 		BeanUtil.copyProperties(blogService.getById(blog.getId()), blogVO);
-		return Result.success(blogVO);
+		String msg = flag ? "新增博客成功" : "编辑博客成功";
+		return Result.success(blogVO, msg);
 	}
 }

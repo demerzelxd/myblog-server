@@ -4,11 +4,9 @@ import cn.me.model.common.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.ShiroException;
-import org.springframework.http.HttpStatus;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.List;
@@ -25,7 +23,6 @@ public class GlobalExceptionHandler
 	 * @param e
 	 * @return
 	 */
-	@ResponseStatus(HttpStatus.UNAUTHORIZED)
 	@ExceptionHandler(value = ShiroException.class)
 	public Result handleException(ShiroException e)
 	{
@@ -39,7 +36,6 @@ public class GlobalExceptionHandler
 	 * @param e
 	 * @return
 	 */
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(value = MethodArgumentNotValidException.class)
 	public Result handleException(MethodArgumentNotValidException e)
 	{
@@ -56,7 +52,6 @@ public class GlobalExceptionHandler
 	 * @param e
 	 * @return
 	 */
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(value = IllegalArgumentException.class)
 	public Result handleException(IllegalArgumentException e)
 	{
@@ -69,7 +64,6 @@ public class GlobalExceptionHandler
 	 * @param e
 	 * @return
 	 */
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(value = RuntimeException.class)
 	public Result handleException(RuntimeException e)
 	{

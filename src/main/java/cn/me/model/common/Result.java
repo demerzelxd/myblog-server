@@ -49,9 +49,14 @@ public class Result<T> implements Serializable
         this.data = data;
     }
 
+    public static <T> Result<T> success(T data, String msg)
+    {
+        return new Result<>(true, HttpStatus.HTTP_OK, msg, data);
+    }
+
     public static <T> Result<T> success(T data)
     {
-        return new Result<>(true, HttpStatus.HTTP_OK, "OK", data);
+        return success(data, "OK");
     }
 
     public static <T> Result<T> success()
