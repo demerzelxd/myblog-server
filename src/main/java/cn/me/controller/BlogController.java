@@ -5,8 +5,11 @@ import cn.hutool.core.lang.Assert;
 import cn.me.model.common.Result;
 import cn.me.model.dto.BlogDTO;
 import cn.me.model.po.Blog;
+import cn.me.model.po.Tags;
+import cn.me.model.vo.BlogMinVO;
 import cn.me.model.vo.BlogVO;
 import cn.me.service.BlogService;
+import cn.me.service.TagsService;
 import cn.me.utils.ShiroUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -30,6 +33,9 @@ public class BlogController
 	@Autowired
 	private BlogService blogService;
 
+	@Autowired
+	private TagsService tagsService;
+
 	/**
 	 * 分页查询所有
 	 * @param pageNow
@@ -43,7 +49,7 @@ public class BlogController
 		// 将有效的博客按照创建时间倒序排列
 		IPage<Blog> pageResult = blogService.page(page, new QueryWrapper<Blog>().eq("status", "1").orderByDesc("create_time"));
 		// 实体转VO
-		return Result.success(pageResult.convert(Blog -> BeanUtil.copyProperties(Blog, BlogVO.class)), null);
+		return Result.success(pageResult.convert(Blog -> BeanUtil.copyProperties(Blog, BlogMinVO.class)), null);
 	}
 
 	/**
@@ -81,6 +87,15 @@ public class BlogController
 		BlogVO blogVO = new BlogVO();
 		BeanUtil.copyProperties(blogDTO, blog);
 		blogService.saveOrUpdate(blog);
+		// 如果能找到名称一样的标签，不插入
+		Tags tagSelected = tagsService.getOne(new QueryWrapper<Tags>().eq("tag_name", blogDTO.getTagName()));
+		// 插入新标签
+		if (ObjectUtils.isEmpty(tagSelected))
+		{
+			Tags tags = new Tags();
+			tags.setTagName(blogDTO.getTagName());
+			tagsService.save(tags);
+		}
 		// 如果是新增，blog会回显id；如果是编辑，blog仍是原来的id
 		// 获取新增或编辑后的记录，返回
 		BeanUtil.copyProperties(blogService.getById(blog.getId()), blogVO);

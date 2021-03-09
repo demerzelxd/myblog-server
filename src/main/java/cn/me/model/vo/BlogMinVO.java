@@ -5,8 +5,11 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * 不返回博客内容
+ */
 @Data
-public class BlogVO
+public class BlogMinVO
 {
 	/**
 	 * 博客主键ID
@@ -27,11 +30,6 @@ public class BlogVO
 	 * 博客描述
 	 */
 	private String description;
-
-	/**
-	 * 博客内容
-	 */
-	private String content;
 
 	/**
 	 * 状态：0-停用，1-正常
