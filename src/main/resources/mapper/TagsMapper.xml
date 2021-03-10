@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.me.mapper.TagsMapper">
-
+	<resultMap id="tagsInfoMap" type="cn.me.model.po.TagInfo">
+		<result column="tag_name" jdbcType="VARCHAR" property="tagName"/>
+		<collection property="tagItemInfoList" ofType="cn.me.model.po.TagItemInfo" resultMap="tagItemInfoMap"/>
+	</resultMap>
+	<resultMap id="tagItemInfoMap" type="cn.me.model.po.TagItemInfo">
+		<result column="id" jdbcType="INTEGER" property="id"/>
+		<result column="title" jdbcType="VARCHAR" property="title"/>
+	</resultMap>
+	<select id="findAllTagsAndBlogs" resultMap="tagsInfoMap">
+		SELECT t_blog.tag_name, t_blog.id, title
+		FROM t_blog
+		LEFT JOIN t_tags
+		ON t_blog.tag_name = t_tags.tag_name
+		WHERE t_tags.tag_name IS NOT NULL
+-- 		tag老的在前，blog新的在前
+		ORDER BY t_tags.create_time ASC, t_blog.create_time DESC
+	</select>
 </mapper>

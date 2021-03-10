@@ -1,7 +1,10 @@
 package cn.me.mapper;
 
+import cn.me.model.po.TagInfo;
 import cn.me.model.po.Tags;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * 博客表 Mapper 接口
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface TagsMapper extends BaseMapper<Tags>
 {
+	List<TagInfo> findAllTagsAndBlogs();
 }

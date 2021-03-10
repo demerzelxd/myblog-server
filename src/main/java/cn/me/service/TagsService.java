@@ -1,7 +1,10 @@
 package cn.me.service;
 
+import cn.me.model.po.TagInfo;
 import cn.me.model.po.Tags;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * 标签表 服务类
@@ -11,4 +14,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface TagsService extends IService<Tags>
 {
+	List<TagInfo> findAllTagsAndBlogs();
 }

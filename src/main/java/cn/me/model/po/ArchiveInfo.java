@@ -15,5 +15,5 @@ public class ArchiveInfo
 	/**
 	 * 归档单位
 	 */
-	private List<ArchiveItemInfo> archiveItemInfo;
+	private List<ArchiveItemInfo> archiveItemInfoList;
 }
