@@ -6,7 +6,6 @@ import cn.me.model.common.Result;
 import cn.me.model.dto.BlogDTO;
 import cn.me.model.po.Blog;
 import cn.me.model.po.Tags;
-import cn.me.model.vo.BlogMinVO;
 import cn.me.model.vo.BlogVO;
 import cn.me.service.BlogService;
 import cn.me.service.TagsService;
@@ -19,6 +18,10 @@ import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 博客表 前端控制器
@@ -47,9 +50,11 @@ public class BlogController
 	{
 		IPage<Blog> page = new Page<>(pageNow, pageSize);
 		// 将有效的博客按照创建时间倒序排列
-		IPage<Blog> pageResult = blogService.page(page, new QueryWrapper<Blog>().eq("status", "1").orderByDesc("create_time"));
+		IPage<Blog> pageResult = blogService.page(page, new QueryWrapper<Blog>()
+				.select("id", "title", "description", "create_time", "tag_name")
+				.eq("status", "1").orderByDesc("create_time"));
 		// 实体转VO
-		return Result.success(pageResult.convert(Blog -> BeanUtil.copyProperties(Blog, BlogMinVO.class)), null);
+		return Result.success(pageResult.convert(Blog -> BeanUtil.copyProperties(Blog, BlogVO.class)), null);
 	}
 
 	/**
@@ -101,5 +106,15 @@ public class BlogController
 		BeanUtil.copyProperties(blogService.getById(blog.getId()), blogVO);
 		String msg = flag ? "新增博客成功" : "编辑博客成功";
 		return Result.success(blogVO, msg);
+	}
+
+	/**
+	 * 根据年份返回归档信息
+	 * @return
+	 */
+	public Result<Map<String, List<BlogVO>>> findArchivesByYear()
+	{
+		Map<String, List<BlogVO>> map = new LinkedHashMap<>();
+		return null;
 	}
 }

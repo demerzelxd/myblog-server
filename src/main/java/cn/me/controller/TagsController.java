@@ -4,7 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.me.model.common.Result;
 import cn.me.model.po.Blog;
 import cn.me.model.po.Tags;
-import cn.me.model.vo.BlogMinVO;
+import cn.me.model.vo.BlogVO;
 import cn.me.model.vo.TagsVO;
 import cn.me.service.BlogService;
 import cn.me.service.TagsService;
@@ -52,17 +52,18 @@ public class TagsController
 	 * @return
 	 */
 	@GetMapping("/findAllTagsAndBlogs")
-	public Result<Map<String, List<BlogMinVO>>> findAllTagsAndBlogs()
+	public Result<Map<String, List<BlogVO>>> findAllTagsAndBlogs()
 	{
 		// HashMap的key没有顺序，所以用LinkedHashMap，这样就能保证老的tag在前
-		Map<String, List<BlogMinVO>> map = new LinkedHashMap<>();
+		Map<String, List<BlogVO>> map = new LinkedHashMap<>();
 		// tag老的在前
-		tagsService.list(new QueryWrapper<Tags>().orderByAsc("create_time")).forEach(tag -> {
+		tagsService.list(new QueryWrapper<Tags>().select("tag_name").orderByAsc("create_time")).forEach(tag -> {
 			map.put(tag.getTagName(),
 					// blog新的在前
-					blogService.list(new QueryWrapper<Blog>().eq("tag_name",tag.getTagName()).orderByDesc("create_time"))
-					.stream().map(Blog -> BeanUtil.copyProperties(Blog, BlogMinVO.class))
-					.collect(Collectors.toList()));
+					blogService.list(new QueryWrapper<Blog>().select("id", "title")
+							.eq("tag_name", tag.getTagName()).orderByDesc("create_time"))
+							.stream().map(Blog -> BeanUtil.copyProperties(Blog, BlogVO.class))
+							.collect(Collectors.toList()));
 		});
 		return Result.success(map);
 	}

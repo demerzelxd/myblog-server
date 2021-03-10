@@ -9,6 +9,9 @@ spring:
         type: com.alibaba.druid.pool.DruidDataSource
         password: lostfound
         username: lostfounddatabase
+    # 不返回null值
+    jackson:
+        default-property-inclusion: non_null
 
 shiro-redis:
     redis-manager:
