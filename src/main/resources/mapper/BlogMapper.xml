@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.me.mapper.BlogMapper">
-
+	<resultMap id="archiveInfo" type="cn.me.model.po.ArchiveInfo">
+		<result column="year" jdbcType="VARCHAR" property="year"/>
+		<collection property="archiveItemInfo" ofType="cn.me.model.po.ArchiveItemInfo" resultMap="archiveItemInfo"/>
+	</resultMap>
+	<resultMap id="archiveItemInfo" type="cn.me.model.po.ArchiveItemInfo">
+		<result column="id" jdbcType="INTEGER" property="id"/>
+		<result column="title" jdbcType="VARCHAR" property="title"/>
+		<result column="md" jdbcType="VARCHAR" property="md"/>
+	</resultMap>
+	<select id="findArchivesByYear" resultMap="archiveInfo">
+		SELECT id, title, YEAR(create_time) year, DATE_FORMAT(create_time, '%m-%d') md
+		FROM t_blog
+		WHERE status = 1
+		ORDER BY year DESC, md DESC, id DESC
+	</select>
 </mapper>

@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Assert;
 import cn.me.model.common.Result;
 import cn.me.model.dto.BlogDTO;
+import cn.me.model.po.ArchiveInfo;
 import cn.me.model.po.Blog;
 import cn.me.model.po.Tags;
 import cn.me.model.vo.BlogVO;
@@ -19,9 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 博客表 前端控制器
@@ -112,9 +111,10 @@ public class BlogController
 	 * 根据年份返回归档信息
 	 * @return
 	 */
-	public Result<Map<String, List<BlogVO>>> findArchivesByYear()
+	@GetMapping("/findArchivesByYear")
+	public Result<List<ArchiveInfo>> findArchivesByYear()
 	{
-		Map<String, List<BlogVO>> map = new LinkedHashMap<>();
-		return null;
+		List<ArchiveInfo> archiveInfoList = blogService.findArchivesByYear();
+		return Result.success(archiveInfoList);
 	}
 }

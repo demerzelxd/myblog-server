@@ -1,7 +1,10 @@
 package cn.me.mapper;
 
+import cn.me.model.po.ArchiveInfo;
 import cn.me.model.po.Blog;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * 博客表 Mapper 接口
@@ -12,5 +15,5 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2021-02-18
  */
 public interface BlogMapper extends BaseMapper<Blog> {
-
+	List<ArchiveInfo> findArchivesByYear();
 }
